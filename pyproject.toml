@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "poetry-aws-lambda-plugin"
+version = "0.1.0"
+description = ""
+authors = ["Hector Basset"]
+packages = [
+    { include = "poetry_aws_lambda_plugin", from = "src" }
+]
+
+[tool.poetry.dependencies]
+python = "^3.6"
+poetry = "^1.2.0a2"
+
+[tool.poetry.dev-dependencies]
+
+[tool.poetry.plugins."poetry.application.plugin"]
+aws-lambda = "poetry_aws_lambda_plugin.application:AwsLambdaApplicationPlugin"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
