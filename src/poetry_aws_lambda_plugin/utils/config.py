@@ -85,7 +85,7 @@ class Config:
     def compression_type(self) -> CompressionType:
         ct_config = (self._command.poetry.pyproject.data
                      .get("aws-lambda", {})
-                     .get("compression-type", "deflated")).upper()
+                     .get("compression-type", CompressionType.BZIP2.name)).upper()
         if ct_config not in CompressionType.__members__:
             raise PoetryAwsLambdaPluginException(
                 f"Invalid Compression Type ({ct_config}), "

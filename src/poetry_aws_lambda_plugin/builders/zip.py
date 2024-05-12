@@ -8,7 +8,7 @@ from cleo.io.outputs.output import Verbosity
 
 from poetry_aws_lambda_plugin.builders.builder import Builder
 from poetry_aws_lambda_plugin.utils.enums import LambdaResource
-from poetry_aws_lambda_plugin.utils.logging import write_lines
+from poetry_aws_lambda_plugin.utils.logging import write_lines, is_verbosity
 
 
 class ZipBuilder(Builder):
@@ -20,6 +20,15 @@ class ZipBuilder(Builder):
 
     def do(self) -> None:
         write_lines(self.io, f"Building {self.description()}")
+        if is_verbosity(self.io, Verbosity.VERBOSE):
+            write_lines(
+                self.io,
+                str(self.output_path.relative_to(self.config.all_artefacts_path)),
+                f"Compression type: {self.config.compression_type.name}",
+                f"Compression level: {self.config.compression_level}",
+                stack_level=2,
+                verbosity=Verbosity.VERBOSE
+            )
 
         if not self.dry_run:
             with zipfile.ZipFile(
