@@ -1,0 +1,31 @@
+[tool.poetry]
+name = "poetry-aws-lambda-plugin"
+version = "0.1.0"
+description = "Poetry plugin for building and publishing AWS Lambda functions and layers"
+authors = ["Hector BASSET <hector.basset.dev@gmail.com>"]
+readme = "README.md"
+license = "MIT"
+packages = [
+    { include = "poetry_aws_lambda_plugin", from = "src" }
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Topic :: Software Development :: Build Tools"
+]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+poetry = "^1.2"
+
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.plugins."poetry.application.plugin"]
+aws-lambda = "poetry_aws_lambda_plugin.plugin:AwsLambdaPlugin"
+
+[aws-lambda]
+compression-type = "bzip2"
+compression-level = 9
+slimmers = ["bin", "dist-info", "__pycache__", "py.typed", "tests"]
