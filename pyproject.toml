@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "poetry-aws-lambda-plugin"
-version = "0.1.0"
+version = "0.1.1"
 description = "Poetry plugin for building and publishing AWS Lambda functions and layers"
 authors = ["Hector Basset <hector.basset.dev@gmail.com>"]
 readme = "README.md"
