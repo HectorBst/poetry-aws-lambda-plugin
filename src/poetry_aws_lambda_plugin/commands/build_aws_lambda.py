@@ -16,7 +16,8 @@ from poetry_aws_lambda_plugin.packages_getters.project import ProjectPackageGett
 from poetry_aws_lambda_plugin.slimmers.files_remover import BinDirectoryRemoverSlimmer, DistInfoDirectoriesRemoverSlimmer, \
     TestsDirectoriesRemoverSlimmer, PycacheDirectoriesRemoverSlimmer, PyTypedFilesRemoverSlimmer
 from poetry_aws_lambda_plugin.utils.config import Config
-from poetry_aws_lambda_plugin.utils.enums import LambdaResource, describe_enum_config, LambdaArchitecture
+from poetry_aws_lambda_plugin.utils.enums import LambdaResource, describe_enum_config, LambdaArchitecture, \
+    CompressionAlgorithm
 from poetry_aws_lambda_plugin.utils.exceptions import PoetryAwsLambdaPluginException
 
 if TYPE_CHECKING:
@@ -42,18 +43,32 @@ class BuildAwsLambdaCommand(InstallerCommand):
             "Exclude all dependencies and only install the root package (the current project)."
         ),
         option(
-            "resource",
+            "lambda-resource",
             "r",
             f"Lambda resource to build ({describe_enum_config(LambdaResource)})",
             flag=False,
             default=LambdaResource.FUNCTION.name.lower()
         ),
         option(
-            "architecture",
+            "lambda-architecture",
             "a",
             f"Lambda architecture ({describe_enum_config(LambdaArchitecture)})",
             flag=False,
             default=LambdaArchitecture.X86_64.name.lower()
+        ),
+        option(
+            "compression-algorithm",
+            "c",
+            f"ZIP compression algorithm ({describe_enum_config(CompressionAlgorithm)})",
+            flag=False,
+            default=CompressionAlgorithm.DEFLATED.name.lower()
+        ),
+        option(
+            "compression-level",
+            "l",
+            f"ZIP compression level, valid values depend on the compression algorithm "
+            f"(default to the minimum level of the selected algorithm)",
+            flag=False
         )
     ]
 

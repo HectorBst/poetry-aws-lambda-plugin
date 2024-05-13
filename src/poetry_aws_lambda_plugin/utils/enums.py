@@ -22,9 +22,9 @@ def describe_enum_config(
     return desc
 
 
-class CompressionType(Enum):
+class CompressionAlgorithm(Enum):
     BZIP2 = (zipfile.ZIP_BZIP2, True, 1, 9)
-    DEFLATED = (zipfile.ZIP_DEFLATED, True, 0, 9)
+    DEFLATED = (zipfile.ZIP_DEFLATED, True, 1, 9)
     LZMA = (zipfile.ZIP_LZMA, False, -1, -1)
     STORED = (zipfile.ZIP_STORED, False, -1, -1)
 

@@ -4,7 +4,7 @@ from functools import cached_property, lru_cache
 from typing import TYPE_CHECKING
 
 from poetry.core.constraints.version import Version, VersionRange
-from poetry_aws_lambda_plugin.utils.enums import LambdaResource, LambdaArchitecture, CompressionType
+from poetry_aws_lambda_plugin.utils.enums import LambdaResource, LambdaArchitecture, CompressionAlgorithm
 from poetry_aws_lambda_plugin.utils.exceptions import PoetryAwsLambdaPluginException
 
 if TYPE_CHECKING:
@@ -63,7 +63,7 @@ class Config:
 
     @cached_property
     def lambda_resource(self) -> LambdaResource:
-        resource_option = self._command.option("resource").upper()
+        resource_option = self._command.option("lambda-resource").upper()
         if resource_option not in LambdaResource.__members__:
             raise PoetryAwsLambdaPluginException(
                 f"Invalid Lambda Resource ({resource_option}), "
@@ -73,7 +73,7 @@ class Config:
 
     @cached_property
     def lambda_architecture(self) -> LambdaArchitecture:
-        architecture_option = self._command.option("architecture").upper()
+        architecture_option = self._command.option("lambda-architecture").upper()
         if architecture_option not in LambdaArchitecture.__members__:
             raise PoetryAwsLambdaPluginException(
                 f"Invalid Lambda Architecture ({architecture_option}), "
@@ -82,38 +82,38 @@ class Config:
         return LambdaArchitecture[architecture_option]
 
     @cached_property
-    def compression_type(self) -> CompressionType:
-        ct_config = (self._command.poetry.pyproject.data
-                     .get("aws-lambda", {})
-                     .get("compression-type", CompressionType.BZIP2.name)).upper()
-        if ct_config not in CompressionType.__members__:
+    def compression_algorithm(self) -> CompressionAlgorithm:
+        algorithm_option = self._command.option("compression-algorithm").upper()
+        if algorithm_option not in CompressionAlgorithm.__members__:
             raise PoetryAwsLambdaPluginException(
-                f"Invalid Compression Type ({ct_config}), "
-                f"must be one of {', '.join(CompressionType.__members__)}."
+                f"Invalid Compression Algorithm ({algorithm_option}), "
+                f"must be one of {', '.join(CompressionAlgorithm.__members__)}."
             )
-        return CompressionType[ct_config]
+        return CompressionAlgorithm[algorithm_option]
 
     @cached_property
     def compression_level(self) -> int:
-        ct = self.compression_type
-        cl_conf = (self._command.poetry.pyproject.data
-                   .get("aws-lambda", {})
-                   .get("compression-level", ct.min_compression_level))
+        algorithm = self.compression_algorithm
+        level_option = self._command.option("compression-level")
+        if level_option is None:
+            level_option = algorithm.min_compression_level
+        else:
+            level_option = int(level_option)
 
-        if ct.adjustable:
-            if (cl_conf < ct.min_compression_level) or (cl_conf > ct.max_compression_level):
+        if algorithm.adjustable:
+            if (level_option < algorithm.min_compression_level) or (level_option > algorithm.max_compression_level):
                 raise PoetryAwsLambdaPluginException(
-                    f"Invalid Compression Level ({cl_conf}), "
-                    f"must be between {ct.min_compression_level} and {ct.max_compression_level} "
-                    f"for {ct.name}."
+                    f"Invalid Compression Level ({level_option}), "
+                    f"must be between {algorithm.min_compression_level} and {algorithm.max_compression_level} "
+                    f"for {algorithm.name}."
                 )
-        elif cl_conf != ct.min_compression_level:
+        elif level_option != algorithm.min_compression_level:
             raise PoetryAwsLambdaPluginException(
-                f"Invalid Compression Level ({cl_conf}), "
-                f"must be {ct.min_compression_level} for {ct.name} (not adjustable)."
+                f"Invalid Compression Level ({level_option}), "
+                f"must be {algorithm.min_compression_level} for {algorithm.name} (not adjustable)."
             )
 
-        return cl_conf
+        return level_option
 
     @cached_property
     def slimmers(self) -> Optional[Set[str]]:

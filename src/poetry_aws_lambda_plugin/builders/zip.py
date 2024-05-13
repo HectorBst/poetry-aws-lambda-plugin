@@ -24,7 +24,7 @@ class ZipBuilder(Builder):
             write_lines(
                 self.io,
                 str(self.output_path.relative_to(self.config.all_artefacts_path)),
-                f"Compression type: {self.config.compression_type.name}",
+                f"Compression type: {self.config.compression_algorithm.name}",
                 f"Compression level: {self.config.compression_level}",
                 stack_level=2,
                 verbosity=Verbosity.VERBOSE
@@ -34,7 +34,7 @@ class ZipBuilder(Builder):
             with zipfile.ZipFile(
                     self.output_path,
                     mode="w",
-                    compression=self.config.compression_type.numeric_constant,
+                    compression=self.config.compression_algorithm.numeric_constant,
                     compresslevel=self.config.compression_level
             ) as archive:
                 for input_path in self.input_paths:
@@ -52,7 +52,7 @@ class ZipBuilder(Builder):
                             archive.write(
                                 file_path,
                                 arcname=arc_file_path,
-                                compress_type=self.config.compression_type.numeric_constant,
+                                compress_type=self.config.compression_algorithm.numeric_constant,
                                 compresslevel=self.config.compression_level
                             )
 
