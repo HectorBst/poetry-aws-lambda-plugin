@@ -35,7 +35,7 @@ class FilesRemoverSlimmer(Slimmer):
 
         write_lines(self.io, f"Removing {self.description}")
         if is_verbosity(self.io, Verbosity.VERBOSE):
-            paths = sorted([f"{path[1].relative_to(self.config.lambda_artefacts_path)}" for path in found_paths])
+            paths = sorted([f"{path[1].relative_to(self.config.project_root_path)}" for path in found_paths])
             write_lines(self.io, *paths, stack_level=2, verbosity=Verbosity.VERBOSE)
 
         if not self.dry_run:

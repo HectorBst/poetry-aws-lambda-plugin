@@ -13,6 +13,7 @@ from poetry.console.commands.installer_command import InstallerCommand
 from poetry_aws_lambda_plugin.builders.zip import FunctionBuilder, LayerBuilder
 from poetry_aws_lambda_plugin.packages_getters.dependencies import DependenciesPackagesGetter
 from poetry_aws_lambda_plugin.packages_getters.project import ProjectPackageGetter
+from poetry_aws_lambda_plugin.publishers.s3 import S3Publisher
 from poetry_aws_lambda_plugin.slimmers.files_remover import BinDirectoryRemoverSlimmer, DistInfoDirectoriesRemoverSlimmer, \
     TestsDirectoriesRemoverSlimmer, PycacheDirectoriesRemoverSlimmer, PyTypedFilesRemoverSlimmer
 from poetry_aws_lambda_plugin.utils.config import Config
@@ -35,31 +36,33 @@ class BuildAwsLambdaCommand(InstallerCommand):
         option(
             "no-root",
             None,
-            "Do not install the root package (the current project) and install only dependencies."
+            "Do not install the root package (the current project) and install only dependencies.",
+            flag=True
         ),
         option(
             "only-root",
             None,
-            "Exclude all dependencies and only install the root package (the current project)."
+            "Exclude all dependencies and only install the root package (the current project).",
+            flag=True
         ),
         option(
             "lambda-resource",
             "r",
-            f"Lambda resource to build ({describe_enum_config(LambdaResource)})",
+            f"Lambda resource to build ({describe_enum_config(LambdaResource)}).",
             flag=False,
             default=LambdaResource.FUNCTION.name.lower()
         ),
         option(
             "lambda-architecture",
             "a",
-            f"Lambda architecture ({describe_enum_config(LambdaArchitecture)})",
+            f"Lambda architecture ({describe_enum_config(LambdaArchitecture)}).",
             flag=False,
             default=LambdaArchitecture.X86_64.name.lower()
         ),
         option(
             "compression-algorithm",
             "c",
-            f"ZIP compression algorithm ({describe_enum_config(CompressionAlgorithm)})",
+            f"ZIP compression algorithm ({describe_enum_config(CompressionAlgorithm)}).",
             flag=False,
             default=CompressionAlgorithm.DEFLATED.name.lower()
         ),
@@ -67,8 +70,27 @@ class BuildAwsLambdaCommand(InstallerCommand):
             "compression-level",
             "l",
             f"ZIP compression level, valid values depend on the compression algorithm "
-            f"(default to the minimum level of the selected algorithm)",
+            f"(default to the minimum level of the selected algorithm).",
             flag=False
+        ),
+        option(
+            "upload",
+            "u",
+            "Upload the generated package to S3.",
+            flag=True
+        ),
+        option(
+            "bucket-name",
+            "b",
+            f"The name of the S3 bucket to which the lambda package will be uploaded.",
+            flag=False
+        ),
+        option(
+            "object-key-prefix",
+            "p",
+            f"The key prefix of the S3 object that will be used in the bucket to store the lambda package.",
+            flag=False,
+            default=""
         )
     ]
 
@@ -137,6 +159,13 @@ class BuildAwsLambdaCommand(InstallerCommand):
             self.poetry.package
         )
         steps.append(layer)
+
+        s3 = S3Publisher(
+            self.config,
+            self.io,
+            {function.output_path, layer.output_path}
+        )
+        steps.append(s3)
 
         return steps
 

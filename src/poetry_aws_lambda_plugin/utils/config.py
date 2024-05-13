@@ -22,8 +22,12 @@ class Config:
         self._command = command
 
     @cached_property
+    def project_root_path(self) -> Path:
+        return self._command.poetry.pyproject_path.parent
+
+    @cached_property
     def all_artefacts_path(self) -> Path:
-        return self._command.poetry.pyproject_path.parent.joinpath("dist")
+        return self.project_root_path.joinpath("dist")
 
     @cached_property
     def lambda_artefacts_path(self) -> Path:
@@ -124,3 +128,22 @@ class Config:
     @lru_cache(maxsize=None)
     def slimmer_enabled(self, slimmer: str) -> bool:
         return (self.slimmers is None) or (slimmer in self.slimmers)
+
+    @cached_property
+    def upload(self) -> bool:
+        return self._command.option("upload")
+
+    @cached_property
+    def bucket_name(self) -> str:
+        bucket_option = self._command.option("bucket-name")
+
+        if bucket_option is None:
+            raise PoetryAwsLambdaPluginException("Missing bucket name argument")
+
+        return bucket_option
+
+    @cached_property
+    def object_key_prefix(self) -> str:
+        prefix_option = self._command.option("object-key-prefix")
+
+        return prefix_option

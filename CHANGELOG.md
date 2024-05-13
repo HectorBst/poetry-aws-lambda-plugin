@@ -1,5 +1,15 @@
 # Change Log
 
+## [0.2.0] - 2024-05-14
+
+### Added
+
+- Added uploading of generated lambda package to S3
+
+### Changed
+
+- Paths in logs are now relative to root project folder
+
 ## [0.1.2] - 2024-05-13
 
 ### Changed

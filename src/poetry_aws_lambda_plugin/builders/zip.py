@@ -23,7 +23,7 @@ class ZipBuilder(Builder):
         if is_verbosity(self.io, Verbosity.VERBOSE):
             write_lines(
                 self.io,
-                str(self.output_path.relative_to(self.config.all_artefacts_path)),
+                str(self.output_path.relative_to(self.config.project_root_path)),
                 f"Compression type: {self.config.compression_algorithm.name}",
                 f"Compression level: {self.config.compression_level}",
                 stack_level=2,
@@ -43,10 +43,12 @@ class ZipBuilder(Builder):
                             file_path = Path(root).joinpath(file)
                             arc_file_path = self.get_arc_file_path(file_path, input_path)
 
-                            if self.io.is_very_verbose():
-                                self.io.write_line(
-                                    f"Adding {file_path.relative_to(self.config.lambda_artefacts_path)} as {arc_file_path}.",
-                                    verbosity=Verbosity.VERBOSE
+                            if is_verbosity(self.io, Verbosity.VERY_VERBOSE):
+                                write_lines(
+                                    self.io,
+                                    f"Adding {file_path.relative_to(self.config.project_root_path)} as {arc_file_path}",
+                                    stack_level=2,
+                                    verbosity=Verbosity.VERY_VERBOSE
                                 )
 
                             archive.write(
